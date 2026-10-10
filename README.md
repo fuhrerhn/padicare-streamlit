@@ -55,4 +55,4 @@ Buka aplikasi melalui `http://localhost:8501`.
 
 **PaddyCare AI** — Smart Rice Disease Detection
 
-*Dikembangkan sebagai Final Project Data Science & Machine Learning.*
+*by Farhan Fitran Maulana_DSML42.*
