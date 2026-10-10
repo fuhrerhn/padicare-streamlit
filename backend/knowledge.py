@@ -1,0 +1,161 @@
+"""Human-reviewed-first agronomic templates; educational guidance, not a prescription.
+
+Sources are public institutional education resources. Always request local confirmation.
+Each item has precisely three stages: initial check, monitoring, future prevention.
+"""
+
+SOURCES = {
+    'irri': ('IRRI — Rice Diseases Online Resource', 'https://rice-diseases.irri.org/'),
+    'irri_contents': ('IRRI — Disease reference chapters', 'https://rice-diseases.irri.org/contents'),
+    'tnau': ('TNAU — Rice disease advisory', 'https://agritech.tnau.ac.in/govt_schemes_services/aas/paddy.html'),
+    'tnau_streak': ('TNAU — Bacterial leaf streak', 'https://agritech.tnau.ac.in/crop_protection/rice_diseases/rice_8.html'),
+    'tnau_rice': ('TNAU — Rice diseases', 'https://www.agritech.tnau.ac.in/expert_system/paddy/nurserymgmt.html'),
+    'tnau_tungro': ('TNAU — Tungro', 'https://www.agritech.tnau.ac.in/expert_system/paddy/cpdistungro.html'),
+    'lsu': ('LSU AgCenter — Bacterial panicle blight', 'https://www.lsuagcenter.com/topics/crops/rice/diseases/presentations/bacterialpanicleblightmanagement2'),
+    'irri_ipm': ('IRRI — Integrated rice pest management', 'https://www.knowledgebank.irri.org/ericeproduction/PDF_%26_Docs/Control_of_rice_insect_pests.pdf'),
+    'irri_borer': ('IRRI — Rice stem borer guide', 'https://www.knowledgebank.irri.org/images/docs/managing-rice-stem-borers-in-rice-wheat-systems.pdf'),
+}
+
+# Bilingual keys: name, overview, signs, initial, monitor, prevent.
+KNOWLEDGE = {
+ 'bacterial_leaf_blight': {
+   'kind': 'bacterial', 'sources': ['irri', 'tnau'],
+   'id': {'name': 'Hawar Daun Bakteri', 'overview': 'Infeksi bakteri yang dapat menyebabkan bagian ujung atau tepi daun menguning lalu mengering.',
+      'signs': ['Lesi kekuningan memanjang dari tepi atau ujung daun.', 'Batas area rusak bisa bergelombang dan melebar.'],
+      'initial': ['Periksa beberapa tanaman dan dokumentasikan letak lesi.', 'Hindari memindahkan air irigasi dari petak yang diduga terinfeksi ke petak lain.'],
+      'monitor': ['Amati pertambahan area daun yang mengering selama beberapa hari.', 'Periksa apakah pemupukan nitrogen berlebihan dan diskusikan koreksinya dengan penyuluh.'],
+      'prevent': ['Gunakan benih sehat dan varietas tahan yang tersedia di wilayah setempat.', 'Terapkan pemupukan berimbang dan sanitasi lahan.']},
+   'en': {'name': 'Bacterial Leaf Blight', 'overview': 'A bacterial infection that may cause yellowing and drying along leaf tips or margins.',
+      'signs': ['Elongated yellowish lesions starting at leaf tips or edges.', 'Lesion borders may be wavy and spread along the leaf.'],
+      'initial': ['Inspect several plants and document where lesions appear.', 'Avoid moving irrigation water from suspected infected plots to unaffected plots.'],
+      'monitor': ['Track whether leaf drying expands over the next few days.', 'Review excessive nitrogen application with a local extension officer.'],
+      'prevent': ['Use healthy seed and locally suitable resistant varieties.', 'Apply balanced fertilizer and field sanitation.']},
+ },
+ 'bacterial_leaf_streak': {
+   'kind': 'bacterial', 'sources': ['irri', 'tnau_streak'],
+   'id': {'name': 'Bercak Garis Daun Bakteri', 'overview': 'Infeksi bakteri yang sering menampakkan garis sempit memanjang mengikuti tulang daun.',
+      'signs': ['Garis sempit agak tembus cahaya di antara tulang daun.', 'Garis menjadi cokelat; kondisi lembap dapat memperlihatkan eksudat kekuningan.'],
+      'initial': ['Foto garis pada beberapa daun dan bandingkan pola lesinya.', 'Hindari pelukaan daun yang tidak perlu saat bekerja di lahan.'],
+      'monitor': ['Pantau persebaran pada rumpun sekitar, terutama setelah hujan atau angin kencang.', 'Tinjau kondisi air dan nitrogen bersama penyuluh.'],
+      'prevent': ['Gunakan sumber benih sehat; hindari mengambil benih dari petak yang terserang berat.', 'Kelola gulma inang dan pemupukan secara berimbang.']},
+   'en': {'name': 'Bacterial Leaf Streak', 'overview': 'A bacterial disease commonly presenting narrow, elongated streaks between leaf veins.',
+      'signs': ['Thin translucent streaks between veins.', 'Streaks turn brown; yellowish exudates may occur in humid conditions.'],
+      'initial': ['Photograph multiple leaves to compare streak patterns.', 'Avoid unnecessary leaf injury during field work.'],
+      'monitor': ['Watch nearby plants, especially after rain or strong winds.', 'Review irrigation and nitrogen management with an adviser.'],
+      'prevent': ['Use healthy seed; avoid seed from heavily affected plots.', 'Manage weed hosts and balance fertilization.']},
+ },
+ 'bacterial_panicle_blight': {
+   'kind': 'bacterial', 'sources': ['lsu', 'irri'],
+   'id': {'name': 'Hawar Malai Bakteri', 'overview': 'Penyakit bakteri yang terutama merusak malai dan pengisian bulir, bukan sekadar bercak daun.',
+      'signs': ['Bulir atau sekam berubah warna menjadi cokelat.', 'Sebagian malai tetap tegak karena bulir tidak terisi.'],
+      'initial': ['Jika foto hanya menampilkan daun, ambil juga foto malai karena gejala utama terdapat pada bulir.', 'Catat fase pertumbuhan dan luas malai yang terdampak; minta konfirmasi penyuluh.'],
+      'monitor': ['Perhatikan perkembangan bulir kosong dan perubahan warna malai.', 'Tinjau riwayat suhu tinggi serta penggunaan pupuk nitrogen.'],
+      'prevent': ['Hindari penggunaan benih dari petak yang terserang berat.', 'Rencanakan waktu tanam dan pemupukan berimbang menurut kondisi setempat.']},
+   'en': {'name': 'Bacterial Panicle Blight', 'overview': 'A bacterial disease primarily affecting panicles and grain filling, not just leaf spots.',
+      'signs': ['Grains or hulls turn brown.', 'Some panicles stay upright as grains fail to fill.'],
+      'initial': ['If the photo shows only leaves, photograph panicles as well because hallmark signs occur on grains.', 'Record growth stage and affected panicles; request local confirmation.'],
+      'monitor': ['Track empty grains and panicle discoloration.', 'Review high-temperature exposure and nitrogen application.'],
+      'prevent': ['Avoid seed from severely affected fields.', 'Plan planting timing and balanced fertilizer for local conditions.']},
+ },
+ 'blast': {
+   'kind': 'fungal', 'sources': ['irri', 'tnau_rice'],
+   'id': {'name': 'Blas Padi', 'overview': 'Penyakit jamur yang dapat menyerang daun, leher malai, dan bagian tanaman lain.',
+      'signs': ['Bercak berbentuk belah ketupat atau gelendong.', 'Bagian tengah bercak cenderung lebih pucat daripada tepinya.'],
+      'initial': ['Periksa lesi pada beberapa daun dan cek pangkal/leher malai apabila tanaman sudah bermalai.', 'Catat kondisi lembap dan petak yang mengalami gejala.'],
+      'monitor': ['Periksa apakah bercak bertambah dan apakah leher malai mulai terpengaruh.', 'Diskusikan pengendalian terpadu dengan penyuluh bila gejala meluas.'],
+      'prevent': ['Pilih varietas tahan yang sesuai wilayah.', 'Hindari pemberian nitrogen berlebihan dan pertahankan pemupukan seimbang.']},
+   'en': {'name': 'Rice Blast', 'overview': 'A fungal disease that can affect leaves, panicle necks, and other plant parts.',
+      'signs': ['Diamond- or spindle-shaped lesions.', 'Lesions often have pale centers and darker margins.'],
+      'initial': ['Inspect several leaves and check the panicle neck if plants are heading.', 'Record wet conditions and affected plots.'],
+      'monitor': ['Track lesion spread and possible panicle neck damage.', 'Discuss integrated management with an extension worker if symptoms spread.'],
+      'prevent': ['Select locally suitable resistant varieties.', 'Avoid excessive nitrogen and maintain balanced fertilization.']},
+ },
+ 'brown_spot': {
+   'kind': 'fungal', 'sources': ['irri', 'tnau_rice'],
+   'id': {'name': 'Bercak Cokelat', 'overview': 'Penyakit bercak pada daun yang dapat terkait jamur dan dipengaruhi kondisi tanaman serta tanah.',
+      'signs': ['Bercak cokelat bulat hingga oval, kadang dengan pusat keabu-abuan.', 'Bercak dapat menyatu bila serangan berkembang.'],
+      'initial': ['Periksa ukuran dan pola bercak pada beberapa daun.', 'Evaluasi kondisi tanaman dan kemungkinan gangguan hara bersama penyuluh.'],
+      'monitor': ['Catat perubahan jumlah bercak dan kesehatan tanaman selama beberapa hari.', 'Amati kondisi drainase dan pemupukan.'],
+      'prevent': ['Gunakan benih sehat dan varietas sesuai wilayah.', 'Perbaiki pengelolaan tanah, nutrisi, serta kebersihan sisa tanaman sesuai saran lokal.']},
+   'en': {'name': 'Brown Spot', 'overview': 'A fungal leaf-spot disease influenced by plant vigor and soil conditions.',
+      'signs': ['Round to oval brown spots, sometimes with pale centers.', 'Spots may merge as disease develops.'],
+      'initial': ['Check size and distribution of lesions on several leaves.', 'Review crop nutrition and overall plant vigor with an adviser.'],
+      'monitor': ['Record changes in spot counts and plant health over several days.', 'Observe drainage and nutrient management.'],
+      'prevent': ['Use healthy seed and locally appropriate varieties.', 'Improve soil, nutrient, and crop-residue management as locally advised.']},
+ },
+ 'dead_heart': {
+   'kind': 'pest_symptom', 'sources': ['irri_borer', 'irri_ipm'],
+   'id': {'name': 'Pucuk Mati (Dead Heart)', 'overview': 'Gejala pucuk tengah mengering; dapat disebabkan penggerek batang. Ini label gejala, bukan satu patogen spesifik.',
+      'signs': ['Pucuk tengah mengering atau mudah dicabut.', 'Kadang ada lubang gerekan atau kotoran serangga pada batang.'],
+      'initial': ['Periksa pangkal batang dan bagian dalam anakan untuk mencari tanda penggerek.', 'Hitung perkiraan rumpun terdampak sebelum memutuskan pengendalian.'],
+      'monitor': ['Amati kelompok telur atau serangga; dokumentasikan jumlah rumpun terdampak.', 'Konsultasikan ambang pengendalian hama dengan petugas POPT setempat.'],
+      'prevent': ['Lakukan sanitasi sisa tanaman dan pengamatan hama secara berkala.', 'Utamakan pengendalian hama terpadu dan perlindungan musuh alami.']},
+   'en': {'name': 'Dead Heart Symptom', 'overview': 'Drying of the central shoot, potentially due to stem borers. This is a symptom label, not a specific pathogen.',
+      'signs': ['Central shoot dries out or pulls free easily.', 'Borer holes or frass may be visible in stems.'],
+      'initial': ['Inspect lower stems and tillers for signs of stem borers.', 'Estimate the number of affected tillers before deciding on control.'],
+      'monitor': ['Watch for egg masses or insects and record affected tillers.', 'Ask local extension staff about pest action thresholds.'],
+      'prevent': ['Manage crop residues and monitor pests regularly.', 'Prioritize integrated pest management and beneficial organisms.']},
+ },
+ 'downy_mildew': {
+   'kind': 'oomycete', 'sources': ['irri_contents', 'irri'],
+   'id': {'name': 'Embun Bulu', 'overview': 'Kelainan yang dapat melibatkan organisme mirip jamur (oomycete); gejala harus diverifikasi di lapangan.',
+      'signs': ['Daun pucat, tidak normal, atau pertumbuhan terhambat.', 'Pola perubahan bentuk dan warna dapat menyerupai gangguan lain.'],
+      'initial': ['Foto bagian tanaman utuh dan daun yang menunjukkan kelainan.', 'Minta pemeriksaan lapangan karena foto tunggal sulit membedakannya dari masalah hara atau lingkungan.'],
+      'monitor': ['Catat perkembangan kelainan pada pucuk baru.', 'Perhatikan petak sekitar dan kondisi pertumbuhan.'],
+      'prevent': ['Gunakan benih dan bibit yang sehat.', 'Ikuti rekomendasi budidaya dan sanitasi setempat setelah penyebab dipastikan.']},
+   'en': {'name': 'Downy Mildew', 'overview': 'A condition associated with an oomycete (fungus-like organism); field diagnosis is essential.',
+      'signs': ['Pale, distorted leaves or stunted growth.', 'Distortion and discoloration can resemble other plant stresses.'],
+      'initial': ['Photograph entire plants and abnormal leaves.', 'Request field inspection because a single photo may not separate this from nutrient or environmental issues.'],
+      'monitor': ['Track abnormalities on new leaves.', 'Observe nearby plants and growing conditions.'],
+      'prevent': ['Use healthy seed and seedlings.', 'Follow local crop sanitation advice once the cause is confirmed.']},
+ },
+ 'hispa': {
+   'kind': 'pest', 'sources': ['irri_ipm'],
+   'id': {'name': 'Hama Hispa Padi', 'overview': 'Kerusakan daun akibat kumbang hispa dan larvanya, bukan penyakit jamur atau bakteri.',
+      'signs': ['Goresan putih memanjang atau area daun terlihat terserut.', 'Dapat ditemukan kumbang kecil atau larva pada daun.'],
+      'initial': ['Periksa sisi daun untuk mencari kumbang, larva, atau kerusakan khas.', 'Dokumentasikan luas kerusakan sebelum mengambil tindakan.'],
+      'monitor': ['Pantau perkembangan kerusakan dan populasi hama.', 'Diskusikan tindakan mekanis dan ambang pengendalian dengan petugas POPT.'],
+      'prevent': ['Kelola tanaman padi liar dan sisa tanaman secara tepat.', 'Pelihara musuh alami dan hindari nitrogen berlebihan saat serangan tinggi.']},
+   'en': {'name': 'Rice Hispa', 'overview': 'Leaf damage caused by hispa beetles and larvae, rather than a fungal or bacterial disease.',
+      'signs': ['Long pale scraped streaks on leaves.', 'Small beetles or larvae may be found on leaves.'],
+      'initial': ['Inspect leaf surfaces for beetles, larvae, or characteristic feeding marks.', 'Document damage extent before taking action.'],
+      'monitor': ['Track damage and pest populations.', 'Discuss mechanical options and action thresholds with local pest-control advisers.'],
+      'prevent': ['Manage volunteer rice and crop residues appropriately.', 'Conserve natural enemies and avoid excess nitrogen during outbreaks.']},
+ },
+ 'normal': {
+   'kind': 'healthy', 'sources': ['irri'],
+   'id': {'name': 'Tampak Sehat', 'overview': 'Pada foto ini, model paling mendukung kelas normal. Ini bukan jaminan tanaman bebas penyakit.',
+      'signs': ['Daun tampak relatif seragam, tanpa lesi jelas pada foto.', 'Kondisi akar, batang, dan malai belum tentu terlihat.'],
+      'initial': ['Lanjutkan pemeriksaan beberapa rumpun, bukan hanya satu daun.', 'Ambil foto ulang bila ada gejala yang tidak tertangkap kamera.'],
+      'monitor': ['Pantau perubahan warna, bercak, pertumbuhan dan serangan hama setiap beberapa hari.', 'Catat kondisi lahan untuk membandingkan pemeriksaan berikutnya.'],
+      'prevent': ['Terapkan pemupukan dan irigasi berimbang.', 'Gunakan benih sehat serta pengamatan rutin pada tiap fase pertumbuhan.']},
+   'en': {'name': 'Appears Healthy', 'overview': 'For this image, the model favors the normal class. This does not prove the plant is disease-free.',
+      'signs': ['Leaves appear fairly even in color with no obvious lesion in the photo.', 'Roots, stems, and panicles may not be visible.'],
+      'initial': ['Check multiple plants rather than one leaf.', 'Retake photos if symptoms are not visible in this image.'],
+      'monitor': ['Watch for color changes, lesions, growth problems, and pests over the coming days.', 'Record field conditions for comparison later.'],
+      'prevent': ['Maintain balanced nutrition and irrigation.', 'Use healthy seed and monitor each growth stage.']},
+ },
+ 'tungro': {
+   'kind': 'viral', 'sources': ['irri', 'tnau_tungro'],
+   'id': {'name': 'Penyakit Tungro', 'overview': 'Penyakit virus yang berkaitan dengan serangga penular wereng hijau.',
+      'signs': ['Daun menguning hingga jingga dan pertumbuhan terhambat.', 'Anakan berkurang; perubahan warna dapat menyerupai kekurangan hara.'],
+      'initial': ['Amati gejala pada satu rumpun penuh, bukan hanya satu daun.', 'Periksa keberadaan wereng hijau dan minta konfirmasi penyuluh.'],
+      'monitor': ['Petakan rumpun yang menguning dan pantau perubahan jumlahnya.', 'Periksa dinamika vektor bersama petugas POPT.'],
+      'prevent': ['Gunakan varietas tahan yang sesuai dan tanam serempak bila dianjurkan setempat.', 'Kelola tanaman sisa/inang dan ikuti pengendalian terpadu vektor.']},
+   'en': {'name': 'Rice Tungro', 'overview': 'A viral disease associated with green leafhopper vectors.',
+      'signs': ['Yellow to orange leaves and reduced plant growth.', 'Reduced tillering; color changes may resemble nutrient deficiency.'],
+      'initial': ['Inspect whole plants, not only a single leaf.', 'Check for green leafhoppers and request extension confirmation.'],
+      'monitor': ['Map affected clumps and track whether their number changes.', 'Monitor vector activity with local pest advisers.'],
+      'prevent': ['Use locally appropriate resistant varieties and synchronized planting when advised.', 'Manage volunteer hosts and follow integrated vector management.']},
+ },
+}
+
+
+def get_advice(label: str, language: str = 'id') -> dict:
+    if label not in KNOWLEDGE:
+        raise KeyError(f'Unknown classification label: {label}')
+    if language not in ('id', 'en'):
+        raise ValueError('language must be id or en')
+    entry = KNOWLEDGE[label]
+    return {**entry[language], 'kind': entry['kind'],
+            'sources': [{'title': SOURCES[k][0], 'url': SOURCES[k][1]} for k in entry['sources']]}

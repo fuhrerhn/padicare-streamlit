@@ -1,0 +1,21 @@
+name: Deploy PaddyCare API (optional Render hook)
+on:
+  workflow_run:
+    workflows: ["Test PaddyCare AI"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render deployment (when configured)
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo 'No Render deploy hook configured; skipping remote deployment.'
+            exit 0
+          fi
+          curl --fail --silent --show-error --retry 2 --max-time 45 -X POST "$RENDER_DEPLOY_HOOK_URL"
