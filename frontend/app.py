@@ -440,6 +440,140 @@ html.paddy-motion .editorial .process-item:nth-child(3){transition-delay:.18s;}
   .proof-item{font-size:.76rem;}
   .hero-caption{font-size:.71rem;}
 }
+/* Mobile navigation: the two Streamlit columns must not stack over each other.
+   Row 1 is the brand and language switch; row 2 is a five-column touch menu.
+   Give links real 44px touch targets and keep them clear of the switch. */
+@media (max-width: 760px) {
+  /* Native Streamlit toolbar can obscure navigation on a narrow viewport. */
+  [data-testid="stToolbar"] {display: none !important;}
+
+  div[data-testid="stHorizontalBlock"]:has(.site-nav),
+  div[data-testid="stHorizontalBlock"]:has(.site-nav).nav-scrolled {
+    display: block !important;
+    top: 10px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: calc(100vw - 20px) !important;
+    height: 120px !important;
+    min-height: 120px !important;
+    padding: 10px 12px 8px !important;
+    border: 1px solid rgba(212, 227, 210, .95) !important;
+    border-radius: 22px !important;
+    background: rgba(255, 254, 250, .98) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 10px 28px rgba(13, 47, 26, .13) !important;
+  }
+
+  /* Streamlit stacks st.columns below its mobile breakpoint by default.
+     Instead, fill the navbar with the first column and position the toggle
+     in its own reserved slot at top right. */
+  div[data-testid="stHorizontalBlock"]:has(.site-nav) > div[data-testid="stColumn"]:first-child {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex: none !important;
+  }
+  div[data-testid="stHorizontalBlock"]:has(.site-nav) > div[data-testid="stColumn"]:last-child {
+    position: absolute !important;
+    top: 10px !important;
+    right: 12px !important;
+    width: 112px !important;
+    max-width: 112px !important;
+    min-width: 112px !important;
+    height: 42px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    z-index: 3;
+  }
+  div[data-testid="stHorizontalBlock"]:has(.site-nav) .site-nav {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+  .site-brand {
+    display: inline-flex !important;
+    align-self: flex-start !important;
+    max-width: calc(100% - 119px);
+    height: 43px;
+    gap: 8px;
+    align-items: center;
+  }
+  .site-name {color: #193c2c !important; font-size: .9rem !important;}
+  .site-tag {color: #65816e !important; font-size: .61rem;}
+  .site-symbol {width: 35px !important; height: 35px !important; flex: 0 0 35px !important; background: #4d8a60;}
+  .site-symbol path {stroke: #fff;}
+
+  .site-links {
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    align-items: stretch !important;
+    gap: 2px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 45px;
+    padding: 0 1px 1px !important;
+    overflow: visible !important;
+  }
+  .site-links::-webkit-scrollbar {display: none;}
+  .site-links a,
+  .site-links .menu-cta {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    min-height: 44px !important;
+    padding: 10px 3px !important;
+    margin: 0 !important;
+    border-radius: 13px !important;
+    font-size: .72rem !important;
+    font-weight: 700;
+    line-height: 1.15 !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    scroll-snap-align: start;
+    color: #294936 !important;
+    -webkit-tap-highlight-color: rgba(67, 125, 80, .16);
+  }
+  .site-links .menu-cta,
+  .nav-scrolled .site-links .menu-cta {
+    background: #437d50 !important;
+    color: #fff !important;
+  }
+  .site-links a:active {background-color: #d9eadb;}
+
+  .st-key-language_toggle {
+    position: relative !important;
+    top: 0 !important;
+    transform: scale(.82) !important;
+    transform-origin: center center !important;
+    margin: 0 !important;
+  }
+  .st-key-language_toggle::before,
+  .st-key-language_toggle::after {color: #294936 !important;}
+
+  /* The fixed header has known height, so title and sections stay visible. */
+  .hero-photo {padding-top: 190px !important;}
+  #beranda, #tentang, #deteksi, #panduan, #riwayat,
+  .section-anchor {scroll-margin-top: 145px !important;}
+}
+@media (max-width: 460px) {
+  .hero-photo {padding-top: 200px !important;}
+  .site-brand {gap: 7px;}
+  .site-name {font-size: .86rem !important;}
+  .site-links a, .site-links .menu-cta {font-size: .69rem !important; padding-left: 2px !important; padding-right: 2px !important;}
+}
+
 @media (prefers-reduced-motion:reduce) {
   html,body,[data-testid='stAppViewContainer'],[data-testid='stMain'],section.main{scroll-behavior:auto!important;}
   *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;}
@@ -735,7 +869,7 @@ with nav_left:
         for anchor, label_id, label_en in navigation
     )
     st.markdown(
-        '<nav class="site-nav" aria-label="Page navigation">'
+        '<nav class="site-nav" aria-label="PadiCare navigation">'
         '<a class="site-brand" href="#beranda"><span class="site-symbol">'
         '<svg viewBox="0 0 32 32" aria-hidden="true">'
         '<path d="M8 25C8 11 18 7 26 7c-1 11-7 18-18 18Z" fill="none" '
@@ -1043,7 +1177,7 @@ try {
       const isPage = scroller === doc.scrollingElement || scroller === doc.documentElement;
       const scrollerTop = isPage ? 0 : scroller.getBoundingClientRect().top;
       const navBottom = nav()?.getBoundingClientRect().bottom || 0;
-      const offset = Math.max(112, navBottom - scrollerTop + 16);
+      const offset = Math.max(win.innerWidth <= 760 ? 145 : 112, navBottom - scrollerTop + 16);
       const current = scroller.scrollTop;
       const destination = id === 'beranda' ? 0 :
         Math.max(0, Math.min(scroller.scrollHeight - scroller.clientHeight,
