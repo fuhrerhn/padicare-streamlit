@@ -1,8 +1,11 @@
-"""PaddyCare AI — continuous-scroll Streamlit interface (smooth navigation v5.7).
+"""PadiCare AI — Streamlit interface for cloud and local usage.
 
-Only the interface lives here. Prediction and storage remain in FastAPI.
-This file can replace frontend/app.py without changing the backend.
-Run from the project root: python -m streamlit run frontend/app.py
+By default, the uploaded model is loaded directly for inference so Streamlit
+Community Cloud needs no separate API service. The FastAPI integration remains
+available: set PADICARE_INFERENCE_MODE=api and API_URL to use it locally.
+
+Cloud demo history is stored only for the current browser session. For durable,
+multi-user history, deploy the existing FastAPI backend with a persistent DB.
 """
 from __future__ import annotations
 
@@ -13,6 +16,10 @@ import io
 import os
 from html import escape
 from pathlib import Path
+from datetime import datetime, timezone
+from uuid import uuid4
+from collections import Counter
+import logging
 import sys
 
 import pandas as pd
@@ -24,7 +31,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from backend.knowledge import get_advice
 from backend.constants import CLASSES
 
-st.set_page_config(page_title="PaddyCare AI | Kesehatan Tanaman Padi", page_icon="🌾",
+log = logging.getLogger(__name__)
+
+st.set_page_config(page_title="PadiCare AI | Kesehatan Tanaman Padi", page_icon="🌾",
                    layout="wide", initial_sidebar_state="collapsed")
 
 # Image option: add frontend/assets/rice-field.jpg to avoid relying on the internet.
@@ -468,7 +477,7 @@ TR = {
  'hist_list':'Pemeriksaan terbaru','hist_chart':'Distribusi hasil diagnosis','empty':'Belum ada data. Unggah foto di menu Deteksi Tanaman untuk memulai.',
  'refresh':'Muat ulang data','csv':'Unduh riwayat CSV','lib_title':'Ensiklopedia Kesehatan Padi',
  'lib_desc':'Pelajari gejala, tindak lanjut, dan pencegahan untuk seluruh 10 label yang digunakan model.',
- 'pick':'Pilih kondisi','about_title':'Mengenal PaddyCare AI','about_desc':'Sistem klasifikasi gambar berbasis EfficientNet-B0 yang dikembangkan sebagai proyek Data Science & Machine Learning.',
+ 'pick':'Pilih kondisi','about_title':'Mengenal PadiCare AI','about_desc':'Sistem klasifikasi gambar berbasis EfficientNet-B0 yang dikembangkan sebagai proyek Data Science & Machine Learning.',
  'metric1':'Akurasi test set','metric2':'Macro F1 test set','metric3':'Jumlah kelas','model_note':'Angka evaluasi berasal dari notebook pengembangan (holdout test), bukan akurasi per foto atau validasi lapangan.',
  'data_note':'Arsitektur: EfficientNet-B0 (frozen feature extractor) + classifier head. Backend: FastAPI + SQLite. Frontend: Streamlit.',
  'errors':'Gagal menghubungi API','help_photo':'Format JPEG, PNG, atau WEBP, maksimum 8 MB.',
@@ -503,7 +512,7 @@ TR = {
  'hist_list':'Recent screenings','hist_chart':'Classification distribution','empty':'No data yet. Start by analyzing a photo in the Plant Scanner tab.',
  'refresh':'Refresh data','csv':'Download history CSV','lib_title':'Rice Health Knowledge Hub',
  'lib_desc':'Explore symptoms, follow-up actions, and prevention across all 10 model categories.',
- 'pick':'Select a condition','about_title':'About PaddyCare AI','about_desc':'An EfficientNet-B0-based image classifier developed for a Data Science & Machine Learning final project.',
+ 'pick':'Select a condition','about_title':'About PadiCare AI','about_desc':'An EfficientNet-B0-based image classifier developed for a Data Science & Machine Learning final project.',
  'metric1':'Holdout test accuracy','metric2':'Holdout macro F1','metric3':'Classes','model_note':'Performance figures come from the development notebook holdout test, not per-image accuracy or field validation.',
  'data_note':'Architecture: EfficientNet-B0 (frozen feature extractor) + classifier head. Backend: FastAPI + SQLite. Frontend: Streamlit.',
  'errors':'API request failed','help_photo':'JPEG, PNG, or WEBP; maximum 8 MB.',
@@ -517,9 +526,52 @@ TR = {
 }
 
 def api_get(path: str, timeout: int = 8):
-    r = requests.get(f'{BASE_URL}{path}', headers=AUTH_HEADERS, timeout=timeout)
-    r.raise_for_status()
-    return r.json()
+    """Read session-level demo data, or query FastAPI when API mode is enabled."""
+    if DIRECT_INFERENCE:
+        records = st.session_state.get("demo_history", [])
+        if path == "/health":
+            return {"status": "ok", "model_file_exists": MODEL_FILE.is_file()}
+        if path.startswith("/history"):
+            return records[:100]
+        if path == "/stats":
+            counts = Counter(row["label"] for row in records)
+            return {"total": len(records),
+                    "distribution": {name: counts.get(name, 0) for name in CLASSES}}
+        raise ValueError("Unknown endpoint")
+    response = requests.get(f"{BASE_URL}{path}", headers=AUTH_HEADERS, timeout=timeout)
+    response.raise_for_status()
+    return response.json()
+
+
+@st.cache_resource(show_spinner=False)
+def load_model():
+    """Keep one CPU model in memory between Streamlit reruns."""
+    from backend.model import PaddyCarePredictor
+    return PaddyCarePredictor(str(MODEL_FILE))
+
+
+def predict_on_streamlit(image_bytes: bytes) -> dict:
+    """Verify the uploaded photo and run the same inference as the FastAPI backend."""
+    from PIL import Image, ImageOps
+    with Image.open(io.BytesIO(image_bytes)) as probe:
+        probe.verify()
+    with Image.open(io.BytesIO(image_bytes)) as photo:
+        if photo.width * photo.height > 24_000_000:
+            raise ValueError("Image resolution is too large")
+        rgb_image = ImageOps.exif_transpose(photo).convert("RGB")
+    output = load_model().predict(rgb_image)
+    result = {
+        "id": str(uuid4()),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        **output,
+    }
+    if "demo_history" not in st.session_state:
+        st.session_state["demo_history"] = []
+    st.session_state["demo_history"].insert(0, {
+        key: result[key] for key in ("id", "created_at", "label", "confidence")
+    })
+    st.session_state["demo_history"] = st.session_state["demo_history"][:100]
+    return result
 
 
 def heading_list(items: list[str]):
@@ -531,7 +583,7 @@ def heading_list(items: list[str]):
 def report_text(result: dict, lang: str, t: dict) -> str:
     label = result['label']
     a = get_advice(label, lang)
-    lines = ['PaddyCare AI — Rice Health Screening',
+    lines = ['PadiCare AI — Rice Health Screening',
              f"Prediction ID: {result['id']}",
              f"Date (UTC): {result['created_at']}",
              f"Model label: {label}",
@@ -649,11 +701,13 @@ def probability_rows(result: dict, lang: str) -> str:
     return ''.join(bars)
 
 
-# Backend connection and data policy are unchanged.
-BASE_URL = os.getenv('API_URL', 'http://127.0.0.1:8000').rstrip('/')
-API_KEY = os.getenv('PADDYCARE_API_KEY', '')
-PUBLIC_MODE = os.getenv('PADDYCARE_PUBLIC_MODE', '').lower() in {'1','true','yes'}
-AUTH_HEADERS = {'X-API-Key': API_KEY} if API_KEY else {}
+# Cloud demo loads EfficientNet-B0 locally; keep API mode for the final-project backend.
+MODEL_FILE = Path(__file__).resolve().parents[1] / "models" / "paddycare_model.pth"
+DIRECT_INFERENCE = os.getenv("PADICARE_INFERENCE_MODE", "direct").lower() != "api"
+BASE_URL = os.getenv("API_URL", "http://127.0.0.1:8000").rstrip("/")
+API_KEY = os.getenv("PADDYCARE_API_KEY", "")
+PUBLIC_MODE = os.getenv("PADDYCARE_PUBLIC_MODE", "").lower() in {"1", "true", "yes"}
+AUTH_HEADERS = {"X-API-Key": API_KEY} if API_KEY else {}
 
 
 # Native stateful toggle: OFF = Indonesia, ON = English.
@@ -687,7 +741,7 @@ with nav_left:
         '<path d="M8 25C8 11 18 7 26 7c-1 11-7 18-18 18Z" fill="none" '
         'stroke="#305f3d" stroke-width="2.5"/>'
         '<path d="M8 26c4-9 9-13 17-18" fill="none" stroke="#305f3d" stroke-width="2.4"/>'
-        '</svg></span><span><span class="site-name">PaddyCare AI</span>'
+        '</svg></span><span><span class="site-name">PadiCare AI</span>'
         '<span class="site-tag">Rice plant health</span></span></a>'
         f'<div class="site-links">{links}</div></nav>',
         unsafe_allow_html=True,
@@ -703,7 +757,7 @@ cta = 'Mulai periksa' if lang == 'id' else 'Check a plant'
 st.markdown(
     '<span id="beranda"></span><section class="hero-photo">'
     '<div class="hero-content">'
-    f'<div class="hero-kicker">{ "PaddyCare AI · Untuk petani padi" if lang == "id" else "PaddyCare AI · For rice growers" }</div>'
+    f'<div class="hero-kicker">{ "PadiCare AI · Untuk petani padi" if lang == "id" else "PadiCare AI · For rice growers" }</div>'
     f'<h1>{headline}</h1><p>{escape(intro)}</p>'
     f'<a href="#deteksi" class="hero-cta">{escape(cta)} <span aria-hidden="true">↗</span></a>'
     '</div>'
@@ -782,16 +836,24 @@ with st.container(key='deteksi'):
             else:
                 try:
                     with st.spinner(t['wait']):
-                        resp = requests.post(
-                            f'{BASE_URL}/predict', headers=AUTH_HEADERS,
-                            files={'file': (upload.name or 'photo.jpg', content, upload.type or 'image/jpeg')},
-                            timeout=120,
-                        )
-                        resp.raise_for_status()
-                        st.session_state['last_result'] = resp.json()
-                        st.session_state['last_upload_hash'] = hashlib.sha256(content).hexdigest()
-                except requests.RequestException as exc:
-                    st.error(f"{t['errors']}: {exc}")
+                        if DIRECT_INFERENCE:
+                            result_data = predict_on_streamlit(content)
+                        else:
+                            resp = requests.post(
+                                f"{BASE_URL}/predict", headers=AUTH_HEADERS,
+                                files={"file": (upload.name or "photo.jpg", content,
+                                                upload.type or "image/jpeg")},
+                                timeout=120,
+                            )
+                            resp.raise_for_status()
+                            result_data = resp.json()
+                        st.session_state["last_result"] = result_data
+                        st.session_state["last_upload_hash"] = hashlib.sha256(content).hexdigest()
+                except Exception:
+                    log.exception("Photo analysis failed")
+                    st.error("Foto gagal dianalisis. Pastikan file model tersedia dan gambar valid."
+                             if lang == "id" else
+                             "Could not analyze this photo. Check the model file and image format.")
         # Never show a result from a different photo.
         if upload is None or (upload is not None and
                               hashlib.sha256(upload.getvalue()).hexdigest() !=
@@ -801,7 +863,7 @@ with st.container(key='deteksi'):
             health = api_get('/health', timeout=3)
             if not health.get('model_file_exists'):
                 st.warning(t['api_no_model'])
-        except requests.RequestException:
+        except (requests.RequestException, ValueError):
             st.caption(t['api_down'] + ' · ' + t['api_help'])
 
     with right:
@@ -863,7 +925,12 @@ with st.container(key='panduan'):
     chosen = st.selectbox(t['pick'], CLASSES, key='guide_class', format_func=lambda value:value)
     guide_content(chosen, lang, t, expand_first=False)
 
-# History stays available; dense details can be opened only when needed.
+# Demo history is isolated per browser session and is not permanent in Cloud.
+if DIRECT_INFERENCE:
+    TR['id']['history_caption'] = 'Hanya pemeriksaan dari sesi ini. Riwayat hilang saat sesi berakhir.'
+    TR['en']['history_caption'] = 'Only checks from this session. History is cleared when the session ends.'
+    t = TR[lang]
+
 with st.container(key='riwayat'):
     section_intro('Pemeriksaan sebelumnya' if lang=='id' else 'Earlier checks',
                   t['history_title'], t['history_caption'], anchor='riwayat')
@@ -897,7 +964,7 @@ with st.container(key='riwayat'):
                     st.bar_chart(frame.set_index('Condition'),horizontal=True,color='#50865e')
         elif not PUBLIC_MODE:
             st.caption(t['empty'])
-    except requests.RequestException as exc:
+    except (requests.RequestException, ValueError) as exc:
         st.caption(f"{t['errors']}: {exc}")
 
 # Short footer with a photo credit matching the asset in use.
@@ -908,7 +975,7 @@ photo_credit = (
     'rel="noopener noreferrer">Ivan Bandura / Unsplash</a>'
 )
 st.markdown(
-    '<div class="footer"><span>© PaddyCare AI · EfficientNet-B0 · FastAPI · Streamlit</span>'
+    '<div class="footer"><span>© PadiCare AI · EfficientNet-B0 · FastAPI · Streamlit</span>'
     '<span><a href="https://rice-diseases.irri.org/" target="_blank" '
     'rel="noopener noreferrer">IRRI Rice Diseases</a> · '
     + photo_credit + '</span></div>',
